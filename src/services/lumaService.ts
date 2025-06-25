@@ -1,6 +1,5 @@
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+import { supabase } from "@/integrations/supabase/client";
 
 export interface LumaSyncResponse {
   success: boolean;
@@ -12,24 +11,20 @@ export interface LumaSyncResponse {
 export const lumaService = {
   async syncEvent(eventId: string, lumaEventId: string): Promise<LumaSyncResponse> {
     try {
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/luma-api-integration`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('luma-api-integration', {
+        body: {
           action: 'sync_event',
           eventId,
           lumaEventId,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to invoke function');
       }
 
-      return await response.json();
+      return data;
     } catch (error) {
       console.error('Error syncing event from Luma:', error);
       throw error;
@@ -38,24 +33,20 @@ export const lumaService = {
 
   async syncGuests(eventId: string, lumaEventId: string): Promise<LumaSyncResponse> {
     try {
-      const response = await fetch(`${SUPABASE_URL}/functions/v1/luma-api-integration`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('luma-api-integration', {
+        body: {
           action: 'sync_guests',
           eventId,
           lumaEventId,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error(error.message || 'Failed to invoke function');
       }
 
-      return await response.json();
+      return data;
     } catch (error) {
       console.error('Error syncing guests from Luma:', error);
       throw error;
