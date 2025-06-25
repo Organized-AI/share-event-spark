@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Users, Calendar, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
 import { lumaService } from '@/services/lumaService';
 
 interface LumaIntegrationProps {
@@ -22,6 +23,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
     guestCount?: number;
   }>({});
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSyncEvent = async () => {
     if (!lumaEventId.trim()) {
@@ -39,6 +41,11 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
       
       if (result.success) {
         setSyncStatus(prev => ({ ...prev, event: true }));
+        
+        // Invalidate and refetch events to show the updated event
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
+        await queryClient.invalidateQueries({ queryKey: ['event', eventId] });
+        
         toast({
           title: "Success",
           description: "Event details synced from Luma successfully",
@@ -144,7 +151,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
               <Alert>
                 <CheckCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Event details synchronized successfully
+                  Event details synchronized successfully. Check the events list!
                 </AlertDescription>
               </Alert>
             )}
