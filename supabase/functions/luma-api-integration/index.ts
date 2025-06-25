@@ -27,7 +27,7 @@ serve(async (req) => {
     };
 
     if (action === 'sync_event') {
-      // Fetch event details from Luma using public API
+      // Fetch event details from Luma using public API with event_api_id parameter
       const eventResponse = await fetch(`https://public-api.lu.ma/public/v1/event/get?event_api_id=${lumaEventId}`, {
         headers: lumaHeaders,
       });
@@ -59,7 +59,7 @@ serve(async (req) => {
     }
 
     if (action === 'sync_guests') {
-      // Fetch guest list from Luma using public API
+      // Fetch guest list from Luma using public API with event_api_id parameter
       const guestsResponse = await fetch(`https://public-api.lu.ma/public/v1/event/get-guests?event_api_id=${lumaEventId}`, {
         headers: lumaHeaders,
       });
