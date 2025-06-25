@@ -62,7 +62,7 @@ serve(async (req) => {
       // Handle different possible response structures
       const event = eventData.event || eventData;
       
-      // Prepare event data for database storage
+      // Prepare event data for database storage - don't include organizer_id for Luma imports
       const eventToStore = {
         name: event.name || event.title || 'Untitled Event',
         description: event.description || event.summary || '',
@@ -71,7 +71,6 @@ serve(async (req) => {
         cover_image_url: event.cover_url || event.cover_image_url || event.image_url || '',
         luma_event_id: lumaEventId,
         luma_event_url: event.url || '',
-        organizer_id: '00000000-0000-0000-0000-000000000000', // Default organizer for now
         luma_imported: true,
       };
 
