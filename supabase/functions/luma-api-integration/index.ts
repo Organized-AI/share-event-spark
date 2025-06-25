@@ -22,32 +22,34 @@ serve(async (req) => {
     }
 
     const lumaHeaders = {
-      'Authorization': `Bearer ${lumaApiKey}`,
-      'Content-Type': 'application/json',
+      'x-luma-api-key': lumaApiKey,
+      'accept': 'application/json',
     };
 
     if (action === 'sync_event') {
-      // Fetch event details from Luma
-      const eventResponse = await fetch(`https://api.lu.ma/v1/events/${lumaEventId}`, {
+      // Fetch event details from Luma using public API
+      const eventResponse = await fetch(`https://public-api.lu.ma/public/v1/event/get?event_api_id=${lumaEventId}`, {
         headers: lumaHeaders,
       });
 
       if (!eventResponse.ok) {
-        throw new Error(`Luma API error: ${eventResponse.status} ${eventResponse.statusText}`);
+        const errorText = await eventResponse.text();
+        console.error('Luma API error response:', errorText);
+        throw new Error(`Luma API error: ${eventResponse.status} ${eventResponse.statusText} - ${errorText}`);
       }
 
       const eventData = await eventResponse.json();
-      console.log('Event synced from Luma:', eventData.name);
+      console.log('Event synced from Luma:', eventData);
 
       return new Response(
         JSON.stringify({
           success: true,
           data: {
-            name: eventData.name,
+            name: eventData.name || eventData.title,
             description: eventData.description,
-            date: eventData.start_at,
-            location: eventData.location?.address,
-            cover_image_url: eventData.cover_url,
+            date: eventData.start_at || eventData.start_time,
+            location: eventData.location?.address || eventData.location,
+            cover_image_url: eventData.cover_url || eventData.cover_image_url,
           },
         }),
         {
@@ -57,17 +59,19 @@ serve(async (req) => {
     }
 
     if (action === 'sync_guests') {
-      // Fetch guest list from Luma
-      const guestsResponse = await fetch(`https://api.lu.ma/v1/events/${lumaEventId}/guests`, {
+      // Fetch guest list from Luma using public API
+      const guestsResponse = await fetch(`https://public-api.lu.ma/public/v1/event/get-guests?event_api_id=${lumaEventId}`, {
         headers: lumaHeaders,
       });
 
       if (!guestsResponse.ok) {
-        throw new Error(`Luma API error: ${guestsResponse.status} ${guestsResponse.statusText}`);
+        const errorText = await guestsResponse.text();
+        console.error('Luma API error response:', errorText);
+        throw new Error(`Luma API error: ${guestsResponse.status} ${guestsResponse.statusText} - ${errorText}`);
       }
 
       const guestsData = await guestsResponse.json();
-      const guestCount = guestsData.entries?.length || 0;
+      const guestCount = guestsData.entries?.length || guestsData.guests?.length || 0;
       
       console.log(`Synced ${guestCount} guests from Luma`);
 
@@ -75,7 +79,7 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           count: guestCount,
-          data: guestsData.entries,
+          data: guestsData.entries || guestsData.guests || [],
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
