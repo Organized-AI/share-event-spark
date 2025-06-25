@@ -39,17 +39,22 @@ serve(async (req) => {
       }
 
       const eventData = await eventResponse.json();
-      console.log('Event synced from Luma:', eventData);
+      console.log('Raw event data from Luma:', JSON.stringify(eventData, null, 2));
 
+      // Handle different possible response structures
+      const event = eventData.event || eventData;
+      
       return new Response(
         JSON.stringify({
           success: true,
           data: {
-            name: eventData.name || eventData.title,
-            description: eventData.description,
-            date: eventData.start_at || eventData.start_time,
-            location: eventData.location?.address || eventData.location,
-            cover_image_url: eventData.cover_url || eventData.cover_image_url,
+            name: event.name || event.title || 'Untitled Event',
+            description: event.description || event.summary || '',
+            date: event.start_at || event.start_time || event.when,
+            location: event.geo_address_json?.address || event.location?.address || event.location || '',
+            cover_image_url: event.cover_url || event.cover_image_url || event.image_url || '',
+            url: event.url || '',
+            timezone: event.timezone || '',
           },
         }),
         {
@@ -71,6 +76,8 @@ serve(async (req) => {
       }
 
       const guestsData = await guestsResponse.json();
+      console.log('Raw guests data from Luma:', JSON.stringify(guestsData, null, 2));
+      
       const guestCount = guestsData.entries?.length || guestsData.guests?.length || 0;
       
       console.log(`Synced ${guestCount} guests from Luma`);
