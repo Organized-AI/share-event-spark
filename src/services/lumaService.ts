@@ -7,11 +7,13 @@ export interface LumaSyncResponse {
   count?: number;
   error?: string;
   eventId?: string;
+  message?: string;
 }
 
 export const lumaService = {
   async syncEvent(eventId: string, lumaEventId: string): Promise<LumaSyncResponse> {
     try {
+      console.log('Calling luma-api-integration function with:', { action: 'sync_event', eventId, lumaEventId });
       const { data, error } = await supabase.functions.invoke('luma-api-integration', {
         body: {
           action: 'sync_event',
@@ -25,6 +27,7 @@ export const lumaService = {
         throw new Error(error.message || 'Failed to invoke function');
       }
 
+      console.log('Sync event response:', data);
       return data;
     } catch (error) {
       console.error('Error syncing event from Luma:', error);

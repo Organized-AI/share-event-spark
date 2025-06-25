@@ -21,7 +21,7 @@ interface Event {
 }
 
 const EventList: React.FC<EventListProps> = ({ onEventSelect }) => {
-  const { data: events, isLoading, error } = useQuery({
+  const { data: events, isLoading, error, refetch } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
       console.log('Fetching events list...');
@@ -35,9 +35,12 @@ const EventList: React.FC<EventListProps> = ({ onEventSelect }) => {
         throw error;
       }
       
-      console.log('Events fetched:', data);
+      console.log('Events fetched successfully:', data?.length || 0, 'events');
+      console.log('Event details:', data);
       return data as Event[];
     },
+    staleTime: 0, // Always consider data stale to ensure fresh fetches
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   if (isLoading) {
@@ -68,18 +71,30 @@ const EventList: React.FC<EventListProps> = ({ onEventSelect }) => {
   }
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      {!events || events.length === 0 ? (
-        <Card className="col-span-full bg-gray-900 border-gray-800">
-          <CardContent className="flex items-center justify-center py-12">
-            <div className="text-center space-y-2">
-              <Calendar className="h-12 w-12 mx-auto text-gray-600" />
-              <h3 className="text-lg font-medium text-white">No events yet</h3>
-              <p className="text-gray-400">Create your first event to get started</p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-white">Events</h2>
+        <Button 
+          onClick={() => refetch()} 
+          variant="outline" 
+          size="sm"
+          className="text-yellow-400 border-yellow-400 hover:bg-yellow-400 hover:text-black"
+        >
+          Refresh
+        </Button>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        {!events || events.length === 0 ? (
+          <Card className="col-span-full bg-gray-900 border-gray-800">
+            <CardContent className="flex items-center justify-center py-12">
+              <div className="text-center space-y-2">
+                <Calendar className="h-12 w-12 mx-auto text-gray-600" />
+                <h3 className="text-lg font-medium text-white">No events yet</h3>
+                <p className="text-gray-400">Create your first event or import from Luma to get started</p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
         events.map((event) => (
           <Card key={event.id} className="cursor-pointer hover:shadow-md transition-all hover:shadow-yellow-400/20 bg-gray-900 border-gray-800 hover:border-yellow-400/50">
             <CardHeader>
@@ -121,7 +136,8 @@ const EventList: React.FC<EventListProps> = ({ onEventSelect }) => {
             </CardContent>
           </Card>
         ))
-      )}
+        )}
+      </div>
     </div>
   );
 };

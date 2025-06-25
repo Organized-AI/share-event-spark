@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import LumaIntegration from '@/components/LumaIntegration';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Users, Upload } from 'lucide-react';
+import { ArrowRight, Calendar, Users, Upload, Sparkles } from 'lucide-react';
 
 const Index = () => {
   return (
@@ -19,6 +19,13 @@ const Index = () => {
               <Button size="lg" className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
                 Manage Events
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+            <Link to="/texel">
+              <Button size="lg" variant="outline" className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5" />
+                AI Content Generator
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
@@ -100,12 +107,15 @@ const Index = () => {
               Event photos, videos, and atmosphere content
             </p>
           </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🤖 AI Content</h3>
+          <Link to="/texel" className="p-6 border rounded-lg bg-card hover:bg-accent transition-colors cursor-pointer">
+            <h3 className="font-semibold mb-2 flex items-center gap-2">
+              🤖 AI Content
+              <Sparkles className="h-4 w-4" />
+            </h3>
             <p className="text-sm text-muted-foreground">
               AI-generated content via Texel.ai integration
             </p>
-          </div>
+          </Link>
         </div>
       </div>
     </div>

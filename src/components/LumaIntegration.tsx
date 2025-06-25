@@ -49,7 +49,10 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
         }));
         
         // Invalidate events query to refresh the list
-        queryClient.invalidateQueries({ queryKey: ['events'] });
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
+        
+        // Force a refetch to ensure the UI updates
+        await queryClient.refetchQueries({ queryKey: ['events'] });
         
         // If a new event was created and we have a callback, call it
         if (result.eventId && onEventCreated) {
@@ -58,7 +61,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
         
         toast({
           title: "Success",
-          description: "Event details synced from Luma successfully",
+          description: result.message || "Event details synced from Luma successfully",
         });
       } else {
         throw new Error(result.error || 'Failed to sync event');

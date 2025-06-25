@@ -65,13 +65,16 @@ serve(async (req) => {
       // Prepare event data for database storage - organizer_id is now nullable
       const eventToStore = {
         name: event.name || event.title || 'Untitled Event',
-        description: event.description || event.summary || '',
-        event_date: event.start_at || event.start_time || event.when,
-        location: event.geo_address_json?.address || event.location?.address || event.location || '',
-        cover_image_url: event.cover_url || event.cover_image_url || event.image_url || '',
+        description: event.description || event.summary || null,
+        event_date: event.start_at || event.start_time || event.when || null,
+        location: event.geo_address_json?.address || event.location?.address || event.location || null,
+        cover_image_url: event.cover_url || event.cover_image_url || event.image_url || null,
         luma_event_id: lumaEventId,
-        luma_event_url: event.url || '',
+        luma_event_url: event.url || null,
         luma_imported: true,
+        sync_enabled: true,
+        last_sync: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       console.log('Storing event in database:', eventToStore);
@@ -121,14 +124,19 @@ serve(async (req) => {
         JSON.stringify({
           success: true,
           eventId: savedEvent.id,
+          message: `Event "${savedEvent.name}" imported successfully from Luma`,
           data: {
-            name: event.name || event.title || 'Untitled Event',
-            description: event.description || event.summary || '',
-            date: event.start_at || event.start_time || event.when,
-            location: event.geo_address_json?.address || event.location?.address || event.location || '',
-            cover_image_url: event.cover_url || event.cover_image_url || event.image_url || '',
-            url: event.url || '',
-            timezone: event.timezone || '',
+            id: savedEvent.id,
+            name: savedEvent.name,
+            description: savedEvent.description,
+            event_date: savedEvent.event_date,
+            location: savedEvent.location,
+            cover_image_url: savedEvent.cover_image_url,
+            luma_event_id: savedEvent.luma_event_id,
+            luma_event_url: savedEvent.luma_event_url,
+            luma_imported: savedEvent.luma_imported,
+            created_at: savedEvent.created_at,
+            updated_at: savedEvent.updated_at,
           },
         }),
         {
