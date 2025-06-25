@@ -21,16 +21,21 @@ const EventManagement = () => {
     setActiveTab('dashboard');
   };
 
-  const handleEventCreated = (eventId: string) => {
+  const handleEventCreated = async (eventId: string) => {
     console.log('Event created with ID:', eventId);
     setShowCreateForm(false);
     setShowLumaSync(false);
+    
+    // Add a small delay to ensure database consistency before navigation
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     handleEventSelect(eventId);
   };
 
   return (
     <div className="min-h-screen bg-black p-8">
       <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-white">Event Management</h1>
           <p className="text-xl text-gray-300">

@@ -7,6 +7,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Input validation functions
+const validateLumaEventId = (eventId: string): boolean => {
+  return /^evt-[a-zA-Z0-9]+$/.test(eventId);
+};
+
+const sanitizeInput = (input: string): string => {
+  return input.trim().replace(/[<>]/g, '');
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -14,16 +23,28 @@ serve(async (req) => {
   }
 
   try {
+    // Get the JWT token from the request
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      throw new Error('Authorization header is required');
+    }
+
     const { action, eventId, lumaEventId } = await req.json();
     console.log('Luma API request:', { action, eventId, lumaEventId });
+
+    // Validate inputs
+    if (!action || !lumaEventId) {
+      throw new Error('Missing required parameters: action and lumaEventId');
+    }
+
+    const sanitizedLumaEventId = sanitizeInput(lumaEventId);
+    if (!validateLumaEventId(sanitizedLumaEventId)) {
+      throw new Error('Invalid Luma Event ID format. Expected format: evt-xxxxx');
+    }
 
     const lumaApiKey = Deno.env.get('LUMA_API_KEY');
     if (!lumaApiKey) {
       throw new Error('LUMA_API_KEY not configured');
-    }
-
-    if (!lumaEventId) {
-      throw new Error('lumaEventId is required');
     }
 
     const lumaHeaders = {
@@ -39,11 +60,28 @@ serve(async (req) => {
       throw new Error('Supabase configuration missing');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        }
+      }
+    });
+
+    // Verify the user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser(
+      authHeader.replace('Bearer ', '')
+    );
+
+    if (authError || !user) {
+      throw new Error('Authentication required');
+    }
+
+    console.log('Authenticated user:', user.email);
 
     if (action === 'sync_event') {
       // Fetch event details from Luma using the correct API endpoint with api_id parameter
-      const apiUrl = `https://public-api.lu.ma/public/v1/event/get?api_id=${encodeURIComponent(lumaEventId)}`;
+      const apiUrl = `https://public-api.lu.ma/public/v1/event/get?api_id=${encodeURIComponent(sanitizedLumaEventId)}`;
       console.log('Calling Luma API:', apiUrl);
       
       const eventResponse = await fetch(apiUrl, {
@@ -62,28 +100,28 @@ serve(async (req) => {
       // Handle different possible response structures
       const event = eventData.event || eventData;
       
-      // Prepare event data for database storage - organizer_id is now nullable
+      // Prepare event data for database storage - include organizer_id for authenticated user
       const eventToStore = {
-        name: event.name || event.title || 'Untitled Event',
-        description: event.description || event.summary || null,
-        event_date: event.start_at || event.start_time || event.when || null,
-        location: event.geo_address_json?.address || event.location?.address || event.location || null,
-        cover_image_url: event.cover_url || event.cover_image_url || event.image_url || null,
-        luma_event_id: lumaEventId,
-        luma_event_url: event.url || null,
+<<<<<<< HEAD
+        name: sanitizeInput(event.name || event.title || 'Untitled Event'),
+        description: sanitizeInput(event.description || event.summary || ''),
+        event_date: event.start_at || event.start_time || event.when,
+        location: sanitizeInput(event.geo_address_json?.address || event.location?.address || event.location || ''),
+        cover_image_url: event.cover_url || event.cover_image_url || event.image_url || '',
+        luma_event_id: sanitizedLumaEventId,
+        luma_event_url: event.url || '',
         luma_imported: true,
-        sync_enabled: true,
-        last_sync: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        organizer_id: user.id, // Associate with authenticated user
       };
 
       console.log('Storing event in database:', eventToStore);
 
-      // Check if event already exists
+      // Check if event already exists for this user
       const { data: existingEvent } = await supabase
         .from('events')
         .select('id')
-        .eq('luma_event_id', lumaEventId)
+        .eq('luma_event_id', sanitizedLumaEventId)
+        .eq('organizer_id', user.id)
         .maybeSingle();
 
       let savedEvent;
@@ -147,7 +185,7 @@ serve(async (req) => {
 
     if (action === 'sync_guests') {
       // Fetch guest list from Luma using the correct API endpoint with api_id parameter
-      const apiUrl = `https://public-api.lu.ma/public/v1/event/get-guests?api_id=${encodeURIComponent(lumaEventId)}`;
+      const apiUrl = `https://public-api.lu.ma/public/v1/event/get-guests?api_id=${encodeURIComponent(sanitizedLumaEventId)}`;
       console.log('Calling Luma API for guests:', apiUrl);
       
       const guestsResponse = await fetch(apiUrl, {
@@ -179,7 +217,7 @@ serve(async (req) => {
       );
     }
 
-    throw new Error('Invalid action');
+    throw new Error('Invalid action specified');
 
   } catch (error) {
     console.error('Luma API integration error:', error);
@@ -190,7 +228,7 @@ serve(async (req) => {
         error: error.message,
       }),
       {
-        status: 500,
+        status: error.message.includes('Authentication') ? 401 : 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
