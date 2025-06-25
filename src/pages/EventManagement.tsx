@@ -21,10 +21,14 @@ const EventManagement = () => {
     setActiveTab('dashboard');
   };
 
-  const handleEventCreated = (eventId: string) => {
+  const handleEventCreated = async (eventId: string) => {
     console.log('Event created with ID:', eventId);
     setShowCreateForm(false);
     setShowLumaSync(false);
+    
+    // Add a small delay to ensure database consistency before navigation
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     handleEventSelect(eventId);
   };
 

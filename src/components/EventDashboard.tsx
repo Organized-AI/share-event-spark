@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -93,7 +93,9 @@ const getIconComponent = (type: string) => {
 };
 
 const EventDashboard: React.FC<EventDashboardProps> = ({ eventId }) => {
-  const { data: event, isLoading, error } = useQuery({
+  const queryClient = useQueryClient();
+  
+  const { data: event, isLoading, error, refetch } = useQuery({
     queryKey: ['event', eventId],
     queryFn: async () => {
       console.log('Fetching event with ID:', eventId);
@@ -101,7 +103,7 @@ const EventDashboard: React.FC<EventDashboardProps> = ({ eventId }) => {
         .from('events')
         .select('*')
         .eq('id', eventId)
-        .maybeSingle(); // Use maybeSingle instead of single to handle no results
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching event:', error);
@@ -112,6 +114,12 @@ const EventDashboard: React.FC<EventDashboardProps> = ({ eventId }) => {
       return data as Event | null;
     },
   });
+
+  // Force refetch when eventId changes to ensure fresh data
+  useEffect(() => {
+    console.log('EventDashboard: eventId changed to:', eventId);
+    refetch();
+  }, [eventId, refetch]);
 
   const handleFolderClick = (folderId: string) => {
     console.log('Opening folder:', folderId, 'for event:', eventId);
@@ -135,10 +143,16 @@ const EventDashboard: React.FC<EventDashboardProps> = ({ eventId }) => {
     return (
       <Card className="bg-gray-900 border-gray-800">
         <CardContent className="flex items-center justify-center py-12">
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-4">
             <Hash className="h-12 w-12 mx-auto text-gray-600" />
             <h3 className="text-lg font-medium text-white">Event not found</h3>
             <p className="text-gray-400">The event you're looking for doesn't exist or hasn't been synced yet</p>
+            <Button 
+              onClick={() => refetch()}
+              className="bg-yellow-400 text-black hover:bg-yellow-500"
+            >
+              Retry Loading
+            </Button>
           </div>
         </CardContent>
       </Card>

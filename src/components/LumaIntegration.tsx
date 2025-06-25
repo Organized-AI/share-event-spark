@@ -48,8 +48,11 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
           createdEventId: result.eventId 
         }));
         
-        // Invalidate events query to refresh the list
-        queryClient.invalidateQueries({ queryKey: ['events'] });
+        // Invalidate all event-related queries to ensure fresh data
+        await queryClient.invalidateQueries({ queryKey: ['events'] });
+        if (result.eventId) {
+          await queryClient.invalidateQueries({ queryKey: ['event', result.eventId] });
+        }
         
         // If a new event was created and we have a callback, call it
         if (result.eventId && onEventCreated) {
