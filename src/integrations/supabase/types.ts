@@ -107,7 +107,7 @@ export type Database = {
           luma_event_url: string | null
           luma_imported: boolean | null
           name: string
-          organizer_id: string
+          organizer_id: string | null
           sync_enabled: boolean | null
           updated_at: string
         }
@@ -123,7 +123,7 @@ export type Database = {
           luma_event_url?: string | null
           luma_imported?: boolean | null
           name: string
-          organizer_id: string
+          organizer_id?: string | null
           sync_enabled?: boolean | null
           updated_at?: string
         }
@@ -139,7 +139,7 @@ export type Database = {
           luma_event_url?: string | null
           luma_imported?: boolean | null
           name?: string
-          organizer_id?: string
+          organizer_id?: string | null
           sync_enabled?: boolean | null
           updated_at?: string
         }

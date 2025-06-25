@@ -62,7 +62,7 @@ serve(async (req) => {
       // Handle different possible response structures
       const event = eventData.event || eventData;
       
-      // Prepare event data for database storage - don't include organizer_id for Luma imports
+      // Prepare event data for database storage - organizer_id is now nullable
       const eventToStore = {
         name: event.name || event.title || 'Untitled Event',
         description: event.description || event.summary || '',

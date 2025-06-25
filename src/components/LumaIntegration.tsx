@@ -39,9 +39,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
 
     setIsLoading(true);
     try {
-      // Use eventId if provided, otherwise let the service create a new one
-      const targetEventId = eventId || 'new';
-      const result = await lumaService.syncEvent(targetEventId, lumaEventId);
+      const result = await lumaService.syncEvent('new', lumaEventId);
       
       if (result.success) {
         setSyncStatus(prev => ({ 
@@ -69,7 +67,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
       console.error('Sync event error:', error);
       toast({
         title: "Error",
-        description: "Failed to sync event from Luma",
+        description: error instanceof Error ? error.message : "Failed to sync event from Luma",
         variant: "destructive",
       });
     } finally {
@@ -109,7 +107,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
       console.error('Sync guests error:', error);
       toast({
         title: "Error",
-        description: "Failed to sync guests from Luma",
+        description: error instanceof Error ? error.message : "Failed to sync guests from Luma",
         variant: "destructive",
       });
     } finally {
