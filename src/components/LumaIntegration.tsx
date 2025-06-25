@@ -14,9 +14,10 @@ interface LumaIntegrationProps {
   eventId?: string;
 }
 
-const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event' }) => {
+const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event-123' }) => {
   const [lumaEventId, setLumaEventId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [syncedEventId, setSyncedEventId] = useState<string | null>(null);
   const [syncStatus, setSyncStatus] = useState<{
     event?: boolean;
     guests?: boolean;
@@ -42,13 +43,18 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
       if (result.success) {
         setSyncStatus(prev => ({ ...prev, event: true }));
         
+        // Store the actual event ID returned from the sync
+        if (result.data?.eventId) {
+          setSyncedEventId(result.data.eventId);
+        }
+        
         // Invalidate and refetch events to show the updated event
         await queryClient.invalidateQueries({ queryKey: ['events'] });
         await queryClient.invalidateQueries({ queryKey: ['event', eventId] });
         
         toast({
           title: "Success",
-          description: "Event details synced from Luma successfully",
+          description: "Event details synced from Luma successfully! Check the Events page.",
         });
       } else {
         throw new Error(result.error || 'Failed to sync event');
@@ -77,7 +83,9 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
 
     setIsLoading(true);
     try {
-      const result = await lumaService.syncGuests(eventId, lumaEventId);
+      // Use the synced event ID if available, otherwise use the provided eventId
+      const targetEventId = syncedEventId || eventId;
+      const result = await lumaService.syncGuests(targetEventId, lumaEventId);
       
       if (result.success) {
         setSyncStatus(prev => ({ 
