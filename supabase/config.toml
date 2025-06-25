@@ -2,4 +2,4 @@
 project_id = "moqqmtmrejzzzsdctnub"
 
 [functions.luma-api-integration]
-verify_jwt = false
+verify_jwt = true

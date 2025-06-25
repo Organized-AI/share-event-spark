@@ -12,11 +12,16 @@ export interface LumaSyncResponse {
 export const lumaService = {
   async syncEvent(eventId: string, lumaEventId: string): Promise<LumaSyncResponse> {
     try {
+      // Validate Luma Event ID format
+      if (!lumaEventId || !lumaEventId.match(/^evt-[a-zA-Z0-9]+$/)) {
+        throw new Error('Invalid Luma Event ID format. Expected format: evt-xxxxx');
+      }
+
       const { data, error } = await supabase.functions.invoke('luma-api-integration', {
         body: {
           action: 'sync_event',
           eventId,
-          lumaEventId,
+          lumaEventId: lumaEventId.trim(),
         },
       });
 
@@ -34,11 +39,16 @@ export const lumaService = {
 
   async syncGuests(eventId: string, lumaEventId: string): Promise<LumaSyncResponse> {
     try {
+      // Validate Luma Event ID format
+      if (!lumaEventId || !lumaEventId.match(/^evt-[a-zA-Z0-9]+$/)) {
+        throw new Error('Invalid Luma Event ID format. Expected format: evt-xxxxx');
+      }
+
       const { data, error } = await supabase.functions.invoke('luma-api-integration', {
         body: {
           action: 'sync_guests',
           eventId,
-          lumaEventId,
+          lumaEventId: lumaEventId.trim(),
         },
       });
 

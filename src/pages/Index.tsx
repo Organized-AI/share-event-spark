@@ -1,113 +1,130 @@
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import LumaIntegration from '@/components/LumaIntegration';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Calendar, Users, Upload } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Calendar, Upload, Share, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import UserMenu from "@/components/UserMenu";
 
 const Index = () => {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">EventShare MVP</h1>
-          <p className="text-xl text-muted-foreground">
-            Template-based event content management with Luma integration
-          </p>
-          <div className="flex justify-center gap-4">
+    <div className="min-h-screen bg-black text-white">
+      {/* Header */}
+      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-yellow-400">EventShare</h1>
+        {isAuthenticated ? (
+          <div className="flex items-center gap-4">
             <Link to="/events">
-              <Button size="lg" className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Manage Events
-                <ArrowRight className="h-4 w-4" />
+              <Button variant="outline" className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black">
+                Go to Dashboard
               </Button>
             </Link>
+            <UserMenu />
           </div>
-        </div>
+        ) : (
+          <Link to="/auth">
+            <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
+              Sign In
+            </Button>
+          </Link>
+        )}
+      </header>
 
-        {/* Quick Start */}
-        <Card className="border-primary/20">
-          <CardHeader className="text-center">
-            <CardTitle className="flex items-center justify-center gap-2">
-              <Users className="h-5 w-5" />
-              Quick Start
-            </CardTitle>
-            <CardDescription>
-              Get started with EventShare in three simple steps
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-medium">1. Create Event</h3>
-                <p className="text-sm text-muted-foreground">Set up your event with basic details</p>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-medium">2. Sync from Luma</h3>
-                <p className="text-sm text-muted-foreground">Import attendees and event details</p>
-              </div>
-              <div className="text-center space-y-2">
-                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
-                  <Upload className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="font-medium">3. Organize Content</h3>
-                <p className="text-sm text-muted-foreground">Use template folders to manage content</p>
-              </div>
+      {/* Hero Section */}
+      <section className="container mx-auto px-4 py-20 text-center">
+        <h2 className="text-5xl font-bold mb-6 leading-tight">
+          Organize & Share Your
+          <br />
+          <span className="text-yellow-400">Event Content</span>
+        </h2>
+        <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+          The ultimate platform for event organizers to collect, organize, and share photos, 
+          videos, and content from speakers, sponsors, and attendees.
+        </p>
+        
+        <div className="flex gap-4 justify-center">
+          {isAuthenticated ? (
+            <Link to="/events">
+              <Button size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500">
+                Go to Dashboard
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button size="lg" variant="outline" className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black">
+                  Sign In
+                </Button>
+              </Link>
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="container mx-auto px-4 py-20">
+        <h3 className="text-3xl font-bold text-center mb-12">Why Choose EventShare?</h3>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Calendar className="h-8 w-8 text-black" />
             </div>
-          </CardContent>
-        </Card>
-        
-        {/* Luma Integration Demo */}
-        <div className="flex justify-center">
-          <LumaIntegration eventId="demo-event-123" />
-        </div>
-        
-        {/* Features Grid */}
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">📢 Speakers</h3>
-            <p className="text-sm text-muted-foreground">
-              Speaker presentations, bios, and photos
+            <h4 className="text-xl font-semibold mb-3">Event Organization</h4>
+            <p className="text-gray-300">
+              Create organized folder structures for different types of content - speakers, 
+              sponsors, attendees, and more.
             </p>
           </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🤝 Sponsors</h3>
-            <p className="text-sm text-muted-foreground">
-              Sponsor logos, materials, and promotional content
+          
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Upload className="h-8 w-8 text-black" />
+            </div>
+            <h4 className="text-xl font-semibold mb-3">Easy Upload</h4>
+            <p className="text-gray-300">
+              Simple drag-and-drop interface for uploading photos, videos, and documents 
+              from all your event participants.
             </p>
           </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🎭 Attendees</h3>
-            <p className="text-sm text-muted-foreground">
-              Attendee photos, networking materials
-            </p>
-          </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🙋 Volunteers</h3>
-            <p className="text-sm text-muted-foreground">
-              Volunteer coordination and resources
-            </p>
-          </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🌟 Atmosphere</h3>
-            <p className="text-sm text-muted-foreground">
-              Event photos, videos, and atmosphere content
-            </p>
-          </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🤖 AI Content</h3>
-            <p className="text-sm text-muted-foreground">
-              AI-generated content via Texel.ai integration
+          
+          <div className="text-center p-6">
+            <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Share className="h-8 w-8 text-black" />
+            </div>
+            <h4 className="text-xl font-semibold mb-3">Secure Sharing</h4>
+            <p className="text-gray-300">
+              Control who can access what content with role-based permissions and 
+              secure sharing capabilities.
             </p>
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Security Notice */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="bg-gray-900 rounded-lg p-8 text-center border border-gray-800">
+          <Shield className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
+          <h4 className="text-2xl font-semibold mb-3">Enterprise-Grade Security</h4>
+          <p className="text-gray-300 max-w-2xl mx-auto">
+            Your event content is protected with industry-standard security measures, 
+            including authentication, role-based access control, and encrypted data storage.
+          </p>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="container mx-auto px-4 py-8 text-center text-gray-400 border-t border-gray-800">
+        <p>&copy; 2024 EventShare. Built with security and privacy in mind.</p>
+      </footer>
     </div>
   );
 };
