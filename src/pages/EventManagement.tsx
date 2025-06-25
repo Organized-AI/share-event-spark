@@ -16,37 +16,39 @@ const EventManagement = () => {
   const [showLumaSync, setShowLumaSync] = useState(false);
 
   const handleEventSelect = (eventId: string) => {
+    console.log('Event selected:', eventId);
     setSelectedEventId(eventId);
     setActiveTab('dashboard');
   };
 
   const handleEventCreated = (eventId: string) => {
+    console.log('Event created with ID:', eventId);
     setShowCreateForm(false);
     setShowLumaSync(false);
     handleEventSelect(eventId);
   };
 
   return (
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-black p-8">
       <div className="max-w-6xl mx-auto space-y-8">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">Event Management</h1>
-          <p className="text-xl text-muted-foreground">
+          <h1 className="text-4xl font-bold text-white">Event Management</h1>
+          <p className="text-xl text-gray-300">
             Create and manage your events with template-based content organization
           </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="events" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 bg-gray-900 border-gray-800">
+            <TabsTrigger value="events" className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300">
               <Calendar className="h-4 w-4" />
               My Events
             </TabsTrigger>
-            <TabsTrigger value="dashboard" disabled={!selectedEventId} className="flex items-center gap-2">
+            <TabsTrigger value="dashboard" disabled={!selectedEventId} className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300 disabled:text-gray-600">
               <FolderOpen className="h-4 w-4" />
               Event Dashboard
             </TabsTrigger>
-            <TabsTrigger value="participants" disabled={!selectedEventId} className="flex items-center gap-2">
+            <TabsTrigger value="participants" disabled={!selectedEventId} className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300 disabled:text-gray-600">
               <Users className="h-4 w-4" />
               Participants
             </TabsTrigger>
@@ -54,19 +56,19 @@ const EventManagement = () => {
 
           <TabsContent value="events" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-semibold">Your Events</h2>
+              <h2 className="text-2xl font-semibold text-white">Your Events</h2>
               <div className="flex gap-2">
                 <Button 
                   onClick={() => setShowLumaSync(true)}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black"
                 >
                   <Download className="h-4 w-4" />
                   Import from Luma
                 </Button>
                 <Button 
                   onClick={() => setShowCreateForm(true)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 bg-yellow-400 text-black hover:bg-yellow-500"
                 >
                   <Plus className="h-4 w-4" />
                   Create New Event
@@ -75,10 +77,10 @@ const EventManagement = () => {
             </div>
 
             {showLumaSync && (
-              <Card>
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
-                  <CardTitle>Import Event from Luma</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-white">Import Event from Luma</CardTitle>
+                  <CardDescription className="text-gray-300">
                     Sync an existing event from Luma with all its details
                   </CardDescription>
                 </CardHeader>
@@ -90,6 +92,7 @@ const EventManagement = () => {
                     <Button 
                       variant="outline" 
                       onClick={() => setShowLumaSync(false)}
+                      className="border-gray-600 text-gray-300 hover:bg-gray-800 hover:text-white"
                     >
                       Cancel
                     </Button>
@@ -99,10 +102,10 @@ const EventManagement = () => {
             )}
 
             {showCreateForm && (
-              <Card>
+              <Card className="bg-gray-900 border-gray-800">
                 <CardHeader>
-                  <CardTitle>Create New Event</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-white">Create New Event</CardTitle>
+                  <CardDescription className="text-gray-300">
                     Set up a new event with template-based content organization
                   </CardDescription>
                 </CardHeader>
@@ -123,15 +126,15 @@ const EventManagement = () => {
           </TabsContent>
 
           <TabsContent value="participants">
-            <Card>
+            <Card className="bg-gray-900 border-gray-800">
               <CardHeader>
-                <CardTitle>Event Participants</CardTitle>
-                <CardDescription>
+                <CardTitle className="text-white">Event Participants</CardTitle>
+                <CardDescription className="text-gray-300">
                   Manage roles and permissions for event participants
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">Participant management coming soon...</p>
+                <p className="text-gray-400">Participant management coming soon...</p>
               </CardContent>
             </Card>
           </TabsContent>

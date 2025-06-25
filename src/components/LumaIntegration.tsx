@@ -116,19 +116,19 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
   };
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full max-w-2xl bg-gray-900 border-gray-800">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-white">
+          <Calendar className="h-5 w-5 text-yellow-400" />
           Luma Integration
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-gray-300">
           Sync event details and attendee lists from your Luma event
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="luma-event-id">Luma Event ID</Label>
+          <Label htmlFor="luma-event-id" className="text-white">Luma Event ID</Label>
           <Input
             id="luma-event-id"
             type="text"
@@ -136,8 +136,9 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
             value={lumaEventId}
             onChange={(e) => setLumaEventId(e.target.value)}
             disabled={isLoading}
+            className="bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-yellow-400"
           />
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-gray-400">
             Find this in your Luma event URL or API settings
           </p>
         </div>
@@ -147,7 +148,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
             <Button 
               onClick={handleSyncEvent}
               disabled={isLoading || !lumaEventId.trim()}
-              className="w-full"
+              className="w-full bg-yellow-400 text-black hover:bg-yellow-500 disabled:bg-gray-700 disabled:text-gray-400"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -159,9 +160,9 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
               {syncStatus.event ? 'Event Synced' : 'Sync Event Details'}
             </Button>
             {syncStatus.event && (
-              <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert className="bg-green-900/50 border-green-700">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                <AlertDescription className="text-green-300">
                   Event details synchronized successfully
                 </AlertDescription>
               </Alert>
@@ -172,7 +173,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
             <Button 
               onClick={handleSyncGuests}
               disabled={isLoading || !lumaEventId.trim()}
-              className="w-full"
+              className="w-full border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black disabled:border-gray-700 disabled:text-gray-400"
               variant="outline"
             >
               {isLoading ? (
@@ -185,9 +186,9 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
               {syncStatus.guests ? 'Guests Synced' : 'Sync Guest List'}
             </Button>
             {syncStatus.guests && (
-              <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
+              <Alert className="bg-green-900/50 border-green-700">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                <AlertDescription className="text-green-300">
                   {syncStatus.guestCount} guests synchronized successfully
                 </AlertDescription>
               </Alert>
@@ -195,7 +196,7 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
           </div>
         </div>
 
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm text-gray-400">
           <p><strong>Note:</strong> Make sure your Luma API key is configured in your Supabase Edge Function environment variables.</p>
         </div>
       </CardContent>
