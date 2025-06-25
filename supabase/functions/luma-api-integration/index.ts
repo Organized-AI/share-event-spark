@@ -31,8 +31,8 @@ serve(async (req) => {
     };
 
     if (action === 'sync_event') {
-      // Fetch event details from Luma using the correct API endpoint
-      const apiUrl = `https://public-api.lu.ma/public/v1/event/get?event_api_id=${encodeURIComponent(lumaEventId)}`;
+      // Fetch event details from Luma using the correct API endpoint with api_id parameter
+      const apiUrl = `https://public-api.lu.ma/public/v1/event/get?api_id=${encodeURIComponent(lumaEventId)}`;
       console.log('Calling Luma API:', apiUrl);
       
       const eventResponse = await fetch(apiUrl, {
@@ -71,8 +71,8 @@ serve(async (req) => {
     }
 
     if (action === 'sync_guests') {
-      // Fetch guest list from Luma using the correct API endpoint
-      const apiUrl = `https://public-api.lu.ma/public/v1/event/get-guests?event_api_id=${encodeURIComponent(lumaEventId)}`;
+      // Fetch guest list from Luma using the correct API endpoint with api_id parameter
+      const apiUrl = `https://public-api.lu.ma/public/v1/event/get-guests?api_id=${encodeURIComponent(lumaEventId)}`;
       console.log('Calling Luma API:', apiUrl);
       
       const guestsResponse = await fetch(apiUrl, {
