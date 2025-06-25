@@ -21,14 +21,21 @@ serve(async (req) => {
       throw new Error('LUMA_API_KEY not configured');
     }
 
+    if (!lumaEventId) {
+      throw new Error('lumaEventId is required');
+    }
+
     const lumaHeaders = {
       'x-luma-api-key': lumaApiKey,
       'accept': 'application/json',
     };
 
     if (action === 'sync_event') {
-      // Fetch event details from Luma using public API with event_api_id parameter
-      const eventResponse = await fetch(`https://public-api.lu.ma/public/v1/event/get?event_api_id=${lumaEventId}`, {
+      // Fetch event details from Luma using the correct API endpoint
+      const apiUrl = `https://public-api.lu.ma/public/v1/event/get?event_api_id=${encodeURIComponent(lumaEventId)}`;
+      console.log('Calling Luma API:', apiUrl);
+      
+      const eventResponse = await fetch(apiUrl, {
         headers: lumaHeaders,
       });
 
@@ -64,8 +71,11 @@ serve(async (req) => {
     }
 
     if (action === 'sync_guests') {
-      // Fetch guest list from Luma using public API with event_api_id parameter
-      const guestsResponse = await fetch(`https://public-api.lu.ma/public/v1/event/get-guests?event_api_id=${lumaEventId}`, {
+      // Fetch guest list from Luma using the correct API endpoint
+      const apiUrl = `https://public-api.lu.ma/public/v1/event/get-guests?event_api_id=${encodeURIComponent(lumaEventId)}`;
+      console.log('Calling Luma API:', apiUrl);
+      
+      const guestsResponse = await fetch(apiUrl, {
         headers: lumaHeaders,
       });
 
