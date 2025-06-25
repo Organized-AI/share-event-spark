@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -11,12 +12,27 @@ import {
   Bot,
   Upload,
   Eye,
-  Hash
+  Hash,
+  Loader2,
+  ExternalLink
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import { ContentFolder } from '@/types/event';
+import LumaIntegration from '@/components/LumaIntegration';
 
 interface EventDashboardProps {
   eventId: string;
+}
+
+interface Event {
+  id: string;
+  name: string;
+  description: string | null;
+  event_date: string | null;
+  location: string | null;
+  luma_event_id: string | null;
+  luma_event_url: string | null;
+  cover_image_url: string | null;
 }
 
 const contentFolders: ContentFolder[] = [
@@ -77,19 +93,55 @@ const getIconComponent = (type: string) => {
 };
 
 const EventDashboard: React.FC<EventDashboardProps> = ({ eventId }) => {
-  // Mock event data - replace with actual data from Supabase
-  const mockEvent = {
-    id: eventId,
-    name: 'Tech Conference 2024',
-    description: 'Annual technology conference with industry leaders',
-    date: '2024-07-15T09:00',
-    access_code: 'TECH24',
-  };
+  const { data: event, isLoading, error } = useQuery({
+    queryKey: ['event', eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('id', eventId)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching event:', error);
+        throw error;
+      }
+      
+      return data as Event;
+    },
+  });
 
   const handleFolderClick = (folderId: string) => {
     console.log('Opening folder:', folderId, 'for event:', eventId);
     // Navigate to folder view - implement later
   };
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="text-center space-y-2">
+            <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+            <p className="text-muted-foreground">Loading event details...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error || !event) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="text-center space-y-2">
+            <Hash className="h-12 w-12 mx-auto text-muted-foreground" />
+            <h3 className="text-lg font-medium">Event not found</h3>
+            <p className="text-muted-foreground">The event you're looking for doesn't exist</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -97,24 +149,46 @@ const EventDashboard: React.FC<EventDashboardProps> = ({ eventId }) => {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-2xl">{mockEvent.name}</CardTitle>
+            <div className="flex-1">
+              <CardTitle className="text-2xl">{event.name}</CardTitle>
               <CardDescription className="text-base mt-2">
-                {mockEvent.description}
+                {event.description || 'No description available'}
               </CardDescription>
+              {event.location && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  📍 {event.location}
+                </p>
+              )}
             </div>
             <div className="text-right space-y-1">
-              <div className="flex items-center gap-2 text-sm font-medium">
-                <Hash className="h-4 w-4" />
-                Access Code: {mockEvent.access_code}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {new Date(mockEvent.date).toLocaleDateString()}
-              </p>
+              {event.luma_event_id && (
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Hash className="h-4 w-4" />
+                  Luma Event
+                </div>
+              )}
+              {event.event_date && (
+                <p className="text-sm text-muted-foreground">
+                  {new Date(event.event_date).toLocaleDateString()}
+                </p>
+              )}
+              {event.luma_event_url && (
+                <Button size="sm" variant="outline" asChild>
+                  <a href={event.luma_event_url} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View on Luma
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
       </Card>
+
+      {/* Luma Integration */}
+      {event.luma_event_id && (
+        <LumaIntegration eventId={event.id} />
+      )}
 
       {/* Content Folders */}
       <div>

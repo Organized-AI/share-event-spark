@@ -1,37 +1,73 @@
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Hash, Users, FolderOpen } from 'lucide-react';
+import { Calendar, Hash, Users, FolderOpen, Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EventListProps {
   onEventSelect: (eventId: string) => void;
 }
 
-// Mock data - replace with actual data from Supabase
-const mockEvents = [
-  {
-    id: 'event-1',
-    name: 'Tech Conference 2024',
-    description: 'Annual technology conference with industry leaders',
-    date: '2024-07-15T09:00',
-    access_code: 'TECH24',
-    participants: 45,
-  },
-  {
-    id: 'event-2',
-    name: 'Product Launch Event',
-    description: 'Exclusive launch event for our new product line',
-    date: '2024-07-22T14:00',
-    access_code: 'LAUNCH',
-    participants: 28,
-  },
-];
+interface Event {
+  id: string;
+  name: string;
+  description: string | null;
+  event_date: string | null;
+  location: string | null;
+  luma_event_id: string | null;
+  cover_image_url: string | null;
+}
 
 const EventList: React.FC<EventListProps> = ({ onEventSelect }) => {
+  const { data: events, isLoading, error } = useQuery({
+    queryKey: ['events'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error('Error fetching events:', error);
+        throw error;
+      }
+      
+      return data as Event[];
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <Card className="col-span-full">
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="text-center space-y-2">
+            <Loader2 className="h-8 w-8 mx-auto animate-spin text-muted-foreground" />
+            <p className="text-muted-foreground">Loading events...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="col-span-full">
+        <CardContent className="flex items-center justify-center py-12">
+          <div className="text-center space-y-2">
+            <Calendar className="h-12 w-12 mx-auto text-muted-foreground" />
+            <h3 className="text-lg font-medium">Error loading events</h3>
+            <p className="text-muted-foreground">Please try refreshing the page</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {mockEvents.length === 0 ? (
+      {!events || events.length === 0 ? (
         <Card className="col-span-full">
           <CardContent className="flex items-center justify-center py-12">
             <div className="text-center space-y-2">
@@ -42,28 +78,36 @@ const EventList: React.FC<EventListProps> = ({ onEventSelect }) => {
           </CardContent>
         </Card>
       ) : (
-        mockEvents.map((event) => (
+        events.map((event) => (
           <Card key={event.id} className="cursor-pointer hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 {event.name}
-                <div className="flex items-center gap-1 text-sm font-normal text-muted-foreground">
-                  <Hash className="h-3 w-3" />
-                  {event.access_code}
-                </div>
+                {event.luma_event_id && (
+                  <div className="flex items-center gap-1 text-sm font-normal text-muted-foreground">
+                    <Hash className="h-3 w-3" />
+                    Luma
+                  </div>
+                )}
               </CardTitle>
-              <CardDescription>{event.description}</CardDescription>
+              <CardDescription>
+                {event.description || 'No description available'}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  {new Date(event.date).toLocaleDateString()}
-                </div>
-                <div className="flex items-center gap-1">
-                  <Users className="h-4 w-4" />
-                  {event.participants} participants
-                </div>
+                {event.event_date && (
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {new Date(event.event_date).toLocaleDateString()}
+                  </div>
+                )}
+                {event.location && (
+                  <div className="flex items-center gap-1">
+                    <Users className="h-4 w-4" />
+                    {event.location}
+                  </div>
+                )}
               </div>
               <Button 
                 onClick={() => onEventSelect(event.id)}
