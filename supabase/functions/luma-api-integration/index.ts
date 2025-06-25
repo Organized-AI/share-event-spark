@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -30,6 +31,16 @@ serve(async (req) => {
       'accept': 'application/json',
     };
 
+    // Initialize Supabase client for database operations
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Supabase configuration missing');
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     if (action === 'sync_event') {
       // Fetch event details from Luma using the correct API endpoint with api_id parameter
       const apiUrl = `https://public-api.lu.ma/public/v1/event/get?api_id=${encodeURIComponent(lumaEventId)}`;
@@ -51,9 +62,66 @@ serve(async (req) => {
       // Handle different possible response structures
       const event = eventData.event || eventData;
       
+      // Prepare event data for database storage
+      const eventToStore = {
+        name: event.name || event.title || 'Untitled Event',
+        description: event.description || event.summary || '',
+        event_date: event.start_at || event.start_time || event.when,
+        location: event.geo_address_json?.address || event.location?.address || event.location || '',
+        cover_image_url: event.cover_url || event.cover_image_url || event.image_url || '',
+        luma_event_id: lumaEventId,
+        luma_event_url: event.url || '',
+        organizer_id: '00000000-0000-0000-0000-000000000000', // Default organizer for now
+        luma_imported: true,
+      };
+
+      console.log('Storing event in database:', eventToStore);
+
+      // Check if event already exists
+      const { data: existingEvent } = await supabase
+        .from('events')
+        .select('id')
+        .eq('luma_event_id', lumaEventId)
+        .maybeSingle();
+
+      let savedEvent;
+      if (existingEvent) {
+        // Update existing event
+        console.log('Updating existing event:', existingEvent.id);
+        const { data, error } = await supabase
+          .from('events')
+          .update(eventToStore)
+          .eq('id', existingEvent.id)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Database update error:', error);
+          throw new Error(`Failed to update event: ${error.message}`);
+        }
+        savedEvent = data;
+      } else {
+        // Create new event
+        console.log('Creating new event for Luma import');
+        const { data, error } = await supabase
+          .from('events')
+          .insert(eventToStore)
+          .select()
+          .single();
+
+        if (error) {
+          console.error('Database insert error:', error);
+          throw new Error(`Failed to create event: ${error.message}`);
+        }
+        savedEvent = data;
+      }
+
+      console.log('Event saved successfully:', savedEvent);
+
       return new Response(
         JSON.stringify({
           success: true,
+          eventId: savedEvent.id,
           data: {
             name: event.name || event.title || 'Untitled Event',
             description: event.description || event.summary || '',
@@ -73,7 +141,7 @@ serve(async (req) => {
     if (action === 'sync_guests') {
       // Fetch guest list from Luma using the correct API endpoint with api_id parameter
       const apiUrl = `https://public-api.lu.ma/public/v1/event/get-guests?api_id=${encodeURIComponent(lumaEventId)}`;
-      console.log('Calling Luma API:', apiUrl);
+      console.log('Calling Luma API for guests:', apiUrl);
       
       const guestsResponse = await fetch(apiUrl, {
         headers: lumaHeaders,

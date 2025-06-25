@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, Users, FolderOpen } from 'lucide-react';
+import { Plus, Calendar, Users, FolderOpen, Download } from 'lucide-react';
 import CreateEventForm from '@/components/CreateEventForm';
 import EventList from '@/components/EventList';
 import EventDashboard from '@/components/EventDashboard';
+import LumaIntegration from '@/components/LumaIntegration';
 
 const EventManagement = () => {
   const [activeTab, setActiveTab] = useState('events');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showLumaSync, setShowLumaSync] = useState(false);
 
   const handleEventSelect = (eventId: string) => {
     setSelectedEventId(eventId);
@@ -20,6 +22,7 @@ const EventManagement = () => {
 
   const handleEventCreated = (eventId: string) => {
     setShowCreateForm(false);
+    setShowLumaSync(false);
     handleEventSelect(eventId);
   };
 
@@ -52,14 +55,48 @@ const EventManagement = () => {
           <TabsContent value="events" className="space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-semibold">Your Events</h2>
-              <Button 
-                onClick={() => setShowCreateForm(true)}
-                className="flex items-center gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                Create New Event
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  onClick={() => setShowLumaSync(true)}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Import from Luma
+                </Button>
+                <Button 
+                  onClick={() => setShowCreateForm(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Create New Event
+                </Button>
+              </div>
             </div>
+
+            {showLumaSync && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Import Event from Luma</CardTitle>
+                  <CardDescription>
+                    Sync an existing event from Luma with all its details
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LumaIntegration 
+                    onEventCreated={handleEventCreated}
+                  />
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowLumaSync(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {showCreateForm && (
               <Card>

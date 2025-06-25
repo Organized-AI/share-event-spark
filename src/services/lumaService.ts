@@ -6,6 +6,7 @@ export interface LumaSyncResponse {
   data?: any;
   count?: number;
   error?: string;
+  eventId?: string;
 }
 
 export const lumaService = {

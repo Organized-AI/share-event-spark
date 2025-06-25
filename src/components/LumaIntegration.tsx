@@ -8,20 +8,24 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Users, Calendar, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { lumaService } from '@/services/lumaService';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface LumaIntegrationProps {
   eventId?: string;
+  onEventCreated?: (eventId: string) => void;
 }
 
-const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event' }) => {
+const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreated }) => {
   const [lumaEventId, setLumaEventId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [syncStatus, setSyncStatus] = useState<{
     event?: boolean;
     guests?: boolean;
     guestCount?: number;
+    createdEventId?: string;
   }>({});
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSyncEvent = async () => {
     if (!lumaEventId.trim()) {
@@ -35,10 +39,25 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
 
     setIsLoading(true);
     try {
-      const result = await lumaService.syncEvent(eventId, lumaEventId);
+      // Use eventId if provided, otherwise let the service create a new one
+      const targetEventId = eventId || 'new';
+      const result = await lumaService.syncEvent(targetEventId, lumaEventId);
       
       if (result.success) {
-        setSyncStatus(prev => ({ ...prev, event: true }));
+        setSyncStatus(prev => ({ 
+          ...prev, 
+          event: true, 
+          createdEventId: result.eventId 
+        }));
+        
+        // Invalidate events query to refresh the list
+        queryClient.invalidateQueries({ queryKey: ['events'] });
+        
+        // If a new event was created and we have a callback, call it
+        if (result.eventId && onEventCreated) {
+          onEventCreated(result.eventId);
+        }
+        
         toast({
           title: "Success",
           description: "Event details synced from Luma successfully",
@@ -70,7 +89,8 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId = 'demo-event
 
     setIsLoading(true);
     try {
-      const result = await lumaService.syncGuests(eventId, lumaEventId);
+      const targetEventId = syncStatus.createdEventId || eventId || 'new';
+      const result = await lumaService.syncGuests(targetEventId, lumaEventId);
       
       if (result.success) {
         setSyncStatus(prev => ({ 
