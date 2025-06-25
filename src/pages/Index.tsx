@@ -2,33 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, Upload, Share, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/hooks/useAuth";
-import UserMenu from "@/components/UserMenu";
 
 const Index = () => {
-  const { isAuthenticated } = useAuth();
-
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-yellow-400">EventShare</h1>
-        {isAuthenticated ? (
-          <div className="flex items-center gap-4">
-            <Link to="/events">
-              <Button variant="outline" className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black">
-                Go to Dashboard
-              </Button>
-            </Link>
-            <UserMenu />
-          </div>
-        ) : (
-          <Link to="/auth">
-            <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
-              Sign In
-            </Button>
-          </Link>
-        )}
+        <Link to="/events">
+          <Button className="bg-yellow-400 text-black hover:bg-yellow-500">
+            Go to Events
+          </Button>
+        </Link>
       </header>
 
       {/* Hero Section */}
@@ -44,28 +29,12 @@ const Index = () => {
         </p>
         
         <div className="flex gap-4 justify-center">
-          {isAuthenticated ? (
-            <Link to="/events">
-              <Button size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500">
-                Go to Dashboard
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
-          ) : (
-            <>
-              <Link to="/auth">
-                <Button size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500">
-                  Get Started Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button size="lg" variant="outline" className="border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black">
-                  Sign In
-                </Button>
-              </Link>
-            </>
-          )}
+          <Link to="/events">
+            <Button size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500">
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
       </section>
 

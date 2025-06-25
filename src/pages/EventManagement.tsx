@@ -8,7 +8,6 @@ import CreateEventForm from '@/components/CreateEventForm';
 import EventList from '@/components/EventList';
 import EventDashboard from '@/components/EventDashboard';
 import LumaIntegration from '@/components/LumaIntegration';
-import UserMenu from '@/components/UserMenu';
 
 const EventManagement = () => {
   const [activeTab, setActiveTab] = useState('events');
@@ -36,15 +35,12 @@ const EventManagement = () => {
   return (
     <div className="min-h-screen bg-black p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header with User Menu */}
-        <div className="flex justify-between items-center">
-          <div className="text-center space-y-4 flex-1">
-            <h1 className="text-4xl font-bold text-white">Event Management</h1>
-            <p className="text-xl text-gray-300">
-              Create and manage your events with template-based content organization
-            </p>
-          </div>
-          <UserMenu />
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-white">Event Management</h1>
+          <p className="text-xl text-gray-300">
+            Create and manage your events with template-based content organization
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
