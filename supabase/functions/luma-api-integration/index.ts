@@ -23,12 +23,6 @@ serve(async (req) => {
   }
 
   try {
-    // Get the JWT token from the request
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader) {
-      throw new Error('Authorization header is required');
-    }
-
     const { action, eventId, lumaEventId } = await req.json();
     console.log('Luma API request:', { action, eventId, lumaEventId });
 
@@ -60,24 +54,7 @@ serve(async (req) => {
       throw new Error('Supabase configuration missing');
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      global: {
-        headers: {
-          Authorization: authHeader,
-        }
-      }
-    });
-
-    // Verify the user is authenticated
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    );
-
-    if (authError || !user) {
-      throw new Error('Authentication required');
-    }
-
-    console.log('Authenticated user:', user.email);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     if (action === 'sync_event') {
       // Fetch event details from Luma using the correct API endpoint with api_id parameter
@@ -100,9 +77,8 @@ serve(async (req) => {
       // Handle different possible response structures
       const event = eventData.event || eventData;
       
-      // Prepare event data for database storage - include organizer_id for authenticated user
+      // Prepare event data for database storage - no organizer_id since auth is disabled
       const eventToStore = {
-<<<<<<< HEAD
         name: sanitizeInput(event.name || event.title || 'Untitled Event'),
         description: sanitizeInput(event.description || event.summary || ''),
         event_date: event.start_at || event.start_time || event.when,
@@ -111,17 +87,16 @@ serve(async (req) => {
         luma_event_id: sanitizedLumaEventId,
         luma_event_url: event.url || '',
         luma_imported: true,
-        organizer_id: user.id, // Associate with authenticated user
+        organizer_id: null, // No organizer since auth is disabled
       };
 
       console.log('Storing event in database:', eventToStore);
 
-      // Check if event already exists for this user
+      // Check if event already exists
       const { data: existingEvent } = await supabase
         .from('events')
         .select('id')
         .eq('luma_event_id', sanitizedLumaEventId)
-        .eq('organizer_id', user.id)
         .maybeSingle();
 
       let savedEvent;
@@ -228,7 +203,7 @@ serve(async (req) => {
         error: error.message,
       }),
       {
-        status: error.message.includes('Authentication') ? 401 : 500,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
