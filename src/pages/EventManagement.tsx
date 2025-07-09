@@ -3,10 +3,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Calendar, Users, FolderOpen, Download } from 'lucide-react';
+import { Plus, Calendar, Users, FolderOpen, Download, Camera } from 'lucide-react';
 import CreateEventForm from '@/components/CreateEventForm';
 import EventList from '@/components/EventList';
 import EventDashboard from '@/components/EventDashboard';
+import EventContentManager from '@/components/EventContentManager';
 import LumaIntegration from '@/components/LumaIntegration';
 
 const EventManagement = () => {
@@ -44,7 +45,7 @@ const EventManagement = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-gray-900 border-gray-800">
+          <TabsList className="grid w-full grid-cols-4 bg-gray-900 border-gray-800">
             <TabsTrigger value="events" className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300">
               <Calendar className="h-4 w-4" />
               My Events
@@ -52,6 +53,10 @@ const EventManagement = () => {
             <TabsTrigger value="dashboard" disabled={!selectedEventId} className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300 disabled:text-gray-600">
               <FolderOpen className="h-4 w-4" />
               Event Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="content" disabled={!selectedEventId} className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300 disabled:text-gray-600">
+              <Camera className="h-4 w-4" />
+              Content
             </TabsTrigger>
             <TabsTrigger value="participants" disabled={!selectedEventId} className="flex items-center gap-2 data-[state=active]:bg-yellow-400 data-[state=active]:text-black text-gray-300 disabled:text-gray-600">
               <Users className="h-4 w-4" />
@@ -128,6 +133,10 @@ const EventManagement = () => {
 
           <TabsContent value="dashboard">
             {selectedEventId && <EventDashboard eventId={selectedEventId} />}
+          </TabsContent>
+
+          <TabsContent value="content">
+            {selectedEventId && <EventContentManager eventId={selectedEventId} />}
           </TabsContent>
 
           <TabsContent value="participants">

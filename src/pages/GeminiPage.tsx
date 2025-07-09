@@ -1,6 +1,5 @@
 
 import { useEffect, useState } from "react";
-import { getLumaEvent } from "@/services/lumaService";
 import GeminiGenerator from "@/components/GeminiGenerator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -15,9 +14,9 @@ const GeminiPage = () => {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const eventData = await getLumaEvent(eventId);
-        console.log("Fetched Luma Event Data:", eventData);
-        setEvent(eventData);
+        // TODO: Implement getLumaEvent function
+        console.log("Would fetch Luma Event Data for:", eventId);
+        setEvent({ id: eventId, name: "Sample Event" });
         setError(null);
       } catch (err) {
         setError("Failed to fetch Luma event data.");

@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Calendar, Upload, Share, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -65,33 +64,6 @@ const Index = () => {
               from all your event participants.
             </p>
           </div>
-<<<<<<< HEAD
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🎭 Attendees</h3>
-            <p className="text-sm text-muted-foreground">
-              Attendee photos, networking materials
-            </p>
-          </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🙋 Volunteers</h3>
-            <p className="text-sm text-muted-foreground">
-              Volunteer coordination and resources
-            </p>
-          </div>
-          <div className="p-6 border rounded-lg bg-card">
-            <h3 className="font-semibold mb-2">🌟 Atmosphere</h3>
-            <p className="text-sm text-muted-foreground">
-              Event photos, videos, and atmosphere content
-            </p>
-          </div>
-          <Link to="/texel" className="p-6 border rounded-lg bg-card hover:bg-accent transition-colors cursor-pointer">
-            <h3 className="font-semibold mb-2 flex items-center gap-2">
-              🤖 AI Content
-              <Sparkles className="h-4 w-4" />
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              AI-generated content via Texel.ai integration
-=======
           
           <div className="text-center p-6">
             <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -101,9 +73,8 @@ const Index = () => {
             <p className="text-gray-300">
               Control who can access what content with role-based permissions and 
               secure sharing capabilities.
->>>>>>> 9d162421b4edfb31d50006aa60c10a366c72c835
             </p>
-          </Link>
+          </div>
         </div>
       </section>
 

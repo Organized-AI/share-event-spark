@@ -48,7 +48,6 @@ const LumaIntegration: React.FC<LumaIntegrationProps> = ({ eventId, onEventCreat
           createdEventId: result.eventId 
         }));
         
-<<<<<<< HEAD
         // Invalidate all event-related queries to ensure fresh data
         await queryClient.invalidateQueries({ queryKey: ['events'] });
         if (result.eventId) {
